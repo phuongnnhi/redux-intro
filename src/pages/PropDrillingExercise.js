@@ -22,6 +22,36 @@ const RootComponent = (props) => {
     totalPrice: 0,
   });
 
+  const addProductToCart = (product) => {
+    setCart((prevCart) => {
+      const updatedProducts = prevCart.products.map((cartProduct) => {
+        if(cartProduct.id === product.id) {
+          const updatedQty = cartProduct.qty + 1;
+          return {...cartProduct, qty: updatedQty, price: updatedQty*product.price}
+        }
+        return cartProduct;
+      })
+      const updatedTotalPrice = updatedProducts.reduce((total,prod) => total + prod.price, 0);
+      return {...prevCart, products: updatedProducts, totalPrice: updatedTotalPrice}
+    })
+  }
+  const removeProductFromCart = (product) => {
+    setCart((prevCart) => {
+      const updatedProducts = prevCart.products.map((cartProduct) => {
+        if (cartProduct.id === product.id && cartProduct.qty > 0) {
+          const updatedQty = cartProduct.qty - 1;
+          return { ...cartProduct, qty: updatedQty, price: updatedQty * product.price };
+        }
+        return cartProduct;
+      });
+  
+      const updatedTotalPrice = updatedProducts.reduce((total, prod) => total + prod.price, 0);
+  
+      return { ...prevCart, products: updatedProducts, totalPrice: updatedTotalPrice };
+    });
+  };
+
+
   // Step 0 Read and understand the structure of the app
 
   // Step 1
@@ -57,7 +87,7 @@ const RootComponent = (props) => {
       </Box>
       <Grid container spacing={2} p="1rem">
         <Grid item md={6}>
-          <ProductPage products={products} />
+          <ProductPage products={products} addProductToCart={addProductToCart} removeProductFromCart={removeProductFromCart} />
         </Grid>
         <Grid item md={6}>
           <CartPage cart={cart} />
@@ -78,10 +108,14 @@ const ProductPage = (props) => {
       </Typography>
       <Grid container spacing={2} p="1rem">
         <Grid item sm={6}>
-          <ProductOne product={props.products[0]} />
+          <ProductOne product={props.products[0]} 
+          addProductToCart={props.addProductToCart}
+          removeProductFromCart={props.removeProductFromCart}/>
         </Grid>
         <Grid item sm={6}>
-          <ProductTwo product={props.products[1]} />
+          <ProductTwo product={props.products[1]} 
+          addProductToCart={props.addProductToCart}
+          removeProductFromCart={props.removeProductFromCart}/>
         </Grid>
       </Grid>
     </WrapperBox>
@@ -126,10 +160,12 @@ const ProductOne = (props) => {
         </Grid>
         <Grid item xs={8} >
           <div style={{ display: "flex", justifyContent: "space-between" }}>
-            <Button variant="success" sx={{ width: "5rem" }} >
+            <Button variant="success" sx={{ width: "5rem" }} 
+            onClick={() => props.addProductToCart(props.product)}>
               Add
             </Button>
-            <Button variant="error" sx={{ width: "5rem" }}>
+            <Button variant="error" sx={{ width: "5rem" }}
+            onClick={() => props.removeProductFromCart(props.product)}>
               Remove
             </Button>
           </div>
@@ -155,10 +191,12 @@ const ProductTwo = (props) => {
         </Grid>
         <Grid item xs={8} >
           <div style={{ display: "flex", justifyContent: "space-between" }}>
-            <Button variant="success" size="sm" style={{ width: "5rem" }}>
+            <Button variant="success" size="sm" style={{ width: "5rem" }}
+            onClick={() => props.addProductToCart(props.product)}>
               Add
             </Button>
-            <Button variant="error" size="sm" style={{ width: "5rem" }}>
+            <Button variant="error" size="sm" style={{ width: "5rem" }}
+            onClick={() => props.removeProductFromCart(props.product)}>
               Remove
             </Button>
           </div>
